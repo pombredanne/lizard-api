@@ -13,5 +13,5 @@ class ApiTest(TestCase):
     def test_get(self):
         installed_apps = [
             'dummy',
-            'lizard-api',]
+            'lizard-api']
         RootView().get(None, installed_apps)

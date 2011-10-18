@@ -6,7 +6,6 @@ from django.core.urlresolvers import NoReverseMatch
 from django.conf import settings
 
 from djangorestframework.views import View
-
 from django_load.core import load_object
 
 logger = logging.getLogger(__name__)
