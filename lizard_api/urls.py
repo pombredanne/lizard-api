@@ -4,15 +4,14 @@ from django.conf.urls.defaults import patterns
 from django.conf.urls.defaults import url
 from django.contrib import admin
 
-from lizard_ui.urls import debugmode_urlpatterns
+from lizard_api.views import RootView
 
 admin.autodiscover()
 
 urlpatterns = patterns(
     '',
-    (r'^admin/', include(admin.site.urls)),
-    # url(r'^something/',
-    #     direct.import.views.some_method,
-    #     name="name_it"),
+    # (r'^admin/', include(admin.site.urls)),
+    url(r'^$',
+        RootView.as_view(),
+        name="root"),
     )
-urlpatterns += debugmode_urlpatterns()
