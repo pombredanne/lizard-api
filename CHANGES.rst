@@ -2,7 +2,7 @@ Changelog of lizard-api
 ===================================================
 
 
-0.3 (unreleased)
+0.3 (2012-01-13)
 ----------------
 
 - improved base class
