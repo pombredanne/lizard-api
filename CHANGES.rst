@@ -5,7 +5,7 @@ Changelog of lizard-api
 0.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added base class for Api's
 
 
 0.1 (2011-10-18)

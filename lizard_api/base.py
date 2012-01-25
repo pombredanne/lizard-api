@@ -28,11 +28,15 @@ class BaseApiView(View):
 
     """
 
+    #predefined sizes of return (all fields or just a selection)
     SMALL = 1
     MEDIUM = 2
     COMPLETE = 3
+    ID_NAME = 0
 
     size_dict = {
+
+        'id_name': ID_NAME,
         'small': SMALL,
         'medium': MEDIUM,
         'complete': COMPLETE
@@ -56,27 +60,33 @@ class BaseApiView(View):
 #        """
 #            create object of measure
 #        """
+#
 #        output = {
 #            'id':measure.id,
-#            'ident': measure.ident,
-#            'title': measure.title,
-#            'is_KRW_measure': measure.is_KRW_measure,
-#            'is_indicator': measure.is_indicator,
-#            'description': measure.description,
-#            'total_costs': measure.total_costs,
-#            'investment_costs': measure.investment_costs,
-#            'exploitation_costs': measure.exploitation_costs,
-#            'responsible_department': measure.responsible_department,
-#            'value': measure.value,
-#            'measure_type': self._get_related_object(measure.measure_type, flat),
-#            'period': self._get_related_object(measure.period, flat),
-#            'unit': self._get_related_object(measure.unit, flat),
-#            'categories': self._get_related_objects(measure.categories, flat),
-#            'initiator': self._get_related_object(measure.initiator, flat),
-#            'executive': self._get_related_object(measure.executive, flat),
-#            'areas': self._get_related_objects(measure.areas, flat),
-#            'waterbodies': self._get_related_objects(measure.waterbodies, flat),
-#        }
+#             'name': measure.title
+#            }
+#        if size >= self.SMALL:
+#            output.update({
+#                'id':measure.id,
+#                'ident': measure.ident,
+#                'title': measure.title,
+#                'is_KRW_measure': measure.is_KRW_measure,
+#                'is_indicator': measure.is_indicator,
+#                'description': measure.description,
+#                'total_costs': measure.total_costs,
+#                'investment_costs': measure.investment_costs,
+#                'exploitation_costs': measure.exploitation_costs,
+#                'responsible_department': measure.responsible_department,
+#                'value': measure.value,
+#                'measure_type': self._get_related_object(measure.measure_type, flat),
+#                'period': self._get_related_object(measure.period, flat),
+#                'unit': self._get_related_object(measure.unit, flat),
+#                'categories': self._get_related_objects(measure.categories, flat),
+#                'initiator': self._get_related_object(measure.initiator, flat),
+#                'executive': self._get_related_object(measure.executive, flat),
+#                'areas': self._get_related_objects(measure.areas, flat),
+#                'waterbodies': self._get_related_objects(measure.waterbodies, flat),
+#            })
 #
 #        if size >= self.MEDIUM:
 #            output.update({
@@ -168,6 +178,8 @@ class BaseApiView(View):
             if query:
                 for q in query.split(','):
                     q = q.split(':')
+                    if q[1] == 'None':
+                        q[1] = None
                     objs = objs.filter(**{q[0]:q[1]})
 
             for obj in objs[start:(start+limit)]:
@@ -467,9 +479,9 @@ class BaseApiView(View):
         if type(value) == bool:
             return value
         elif type(value) in (str, unicode):
-            if value.lower in ('true', '1', 'on'):
+            if value.lower() in ('true', '1', 'on'):
                 return True
-            elif value.lower in ('false', '0', 'off'):
+            elif value.lower() in ('false', '0', 'off'):
                 return False
             else:
                 return None

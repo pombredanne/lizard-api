@@ -4,8 +4,10 @@ lizard-api
 Introduction
 ------------
 
-Create a single REST API entrypoint for all available apis in your
+Create a single REST API entrypoint for all available api's in your
 installed apps.
+
+And a base class for rich api's used for grids and forms with the Ext-js javascript framework
 
 
 Usage
@@ -23,3 +25,5 @@ API_URL_NAME. i.e. 'lizard-area:api:root'
       'lizard_api.urls',
       namespace='api',
       app_name='lizard-api')),
+
+
