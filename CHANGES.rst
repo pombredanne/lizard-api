@@ -5,7 +5,7 @@ Changelog of lizard-api
 0.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- added sort functionality
 
 
 0.3 (2012-01-13)
