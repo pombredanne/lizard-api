@@ -47,6 +47,8 @@ class BaseApiView(View):
     #boolean field which marks if field is deleted
     valid_field=None
     valid_value=True
+
+    name_field='name'
     ######## specific functions #######
 
 
@@ -166,6 +168,9 @@ class BaseApiView(View):
             start = int(request.GET.get('start', 0))
             limit = int(request.GET.get('limit', 25))
             query = request.GET.get('query', None)
+            sort = request.GET.get('sort', None)
+
+
 
             output = []
 
@@ -178,17 +183,45 @@ class BaseApiView(View):
             if query:
                 for q in query.split(','):
                     q = q.split(':')
+                    a = len(q)
+                    if len(q) == 1:
+                        #only filter and not field given, take name field
+                        q =  [self.name_field, q[0]]
                     if q[1] == 'None':
                         q[1] = None
+                    q[0] = q[0] + '__istartswith'
                     objs = objs.filter(**{q[0]:q[1]})
+
+            if sort:
+                sort_params = self.transform_sort_params(sort)
+                print sort_params
+                objs = objs.order_by(*sort_params)
+
 
             for obj in objs[start:(start+limit)]:
                 output.append(self.get_object_for_api(obj, flat=flat, size=size, include_geom=include_geom))
 
-            return {'success': True, 'data': output, 'count': objs.count()}
+            return {'success': True, 'data': output, 'count': objs.count(), 'total': objs.count()}
 
+    def transform_sort_params(self, sort_input):
+        """
+            transforms sort request of Ext.store to django input for sort_by
+        """
+        print json.loads(sort_input)
+        output = []
+        for inp in json.loads(sort_input):
+            if self.field_mapping.has_key(inp['property']):
+                model_param = self.field_mapping[inp['property']]
+                if inp['direction'] == 'ASC':
+                    model_param = '-' + model_param
+
+                output.append(model_param)
+        return output
 
     #########functions around a post (update, create, delete) ########
+
+
+
 
     def post(self, request):
         """
