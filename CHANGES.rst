@@ -5,7 +5,7 @@ Changelog of lizard-api
 0.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- added create function
 
 
 0.4 (2012-01-31)
