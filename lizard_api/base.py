@@ -285,7 +285,95 @@ class BaseApiView(View):
 
 
     def create_objects(self, data):
-        Exception('not implemented yet')
+        """
+            create records
+
+            issues(todo):
+            - everything in one database transaction
+        """
+
+        touched_objects = []
+        model = self.model_class
+
+        success = True
+
+        for item in data:
+            record = model()
+            touched_objects.append(record)
+
+            for (key, value) in item.items():
+                key = str(key)
+
+                try:
+                    model_field = model._meta.get_field(key)
+
+                    if model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
+                        pass
+                    elif key == 'id':
+                        pass
+                    else:
+                        if type(model_field.rel) == models.ManyToOneRel:
+                            #input is a dictionary with an id and name in json
+                            if value is None or value == {} or value == []:
+                                value = None
+                            else:
+                                if type(value) == list:
+                                    value = value[0]
+                                value = model_field.rel.to.objects.get(pk=value['id'])
+
+                        if type(model_field) == models.IntegerField and len(model_field._get_choices()) > 0:
+                            #input is a dictionary with an id and name in json
+                            if value is None or value == {} or value == []:
+                                value = None
+                            else:
+                                if type(value) == list:
+                                    value = value[0]
+                                value = value['id']
+
+                        if isinstance(model_field, models.IntegerField):
+                            value = self._str2int_or_none(value)
+                        setattr(record, key, value)
+
+                        if isinstance(model_field, models.FloatField):
+                            value = self._str2float_or_none(value)
+                        setattr(record, key, value)
+
+                        if isinstance(model_field, models.BooleanField):
+                            value = self._str2bool_or_none(value)
+                        setattr(record, key, value)
+
+                        if isinstance(model_field, models.GeometryField):
+                            if value is None or value == '':
+                                value = None
+                            else:
+                                reader = WKTReader()
+                                value = reader.read(value)
+
+                        setattr(record, key, value)
+
+                except FieldDoesNotExist:
+                    logger.error("Field %s.%s not exists." % (
+                            model._meta.module_name, key))
+                    success = False
+                    Exception('field error')
+
+            record.save()
+            for (key, value) in item.items():
+                key = str(key)
+
+                try:
+                    model_field = model._meta.get_field(key)
+
+                    if model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
+                        self.update_many2many(record, model_field, value)
+
+                except FieldDoesNotExist:
+                    logger.error("Field %s.%s not exists." % (
+                            model._meta.module_name, key))
+                    success = False
+                    Exception('field error')
+
+        return success, touched_objects
 
 
     def update_objects(self, data):
@@ -358,7 +446,7 @@ class BaseApiView(View):
                     success = False
                     Exception('field error')
 
-                record.save()
+            record.save()
         return success, touched_objects
 
     def delete_objects(self, data):
