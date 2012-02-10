@@ -5,7 +5,7 @@ Changelog of lizard-api
 0.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add the summary as attribute on record when updating objects.
 
 
 0.5 (2012-02-08)

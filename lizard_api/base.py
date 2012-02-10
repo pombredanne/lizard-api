@@ -390,6 +390,8 @@ class BaseApiView(View):
 
         for item in data:
             record = model.objects.get(pk=item['id'])
+            lizard_history_summary = item.pop('edit_summary')
+            record.lizard_history_summary = lizard_history_summary
             touched_objects.append(record)
 
             for (key, value) in item.items():
