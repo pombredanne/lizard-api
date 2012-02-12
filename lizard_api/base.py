@@ -35,7 +35,6 @@ class BaseApiView(View):
     ID_NAME = 0
 
     size_dict = {
-
         'id_name': ID_NAME,
         'small': SMALL,
         'medium': MEDIUM,
@@ -49,6 +48,8 @@ class BaseApiView(View):
     valid_value=True
 
     name_field='name'
+
+    read_only=None
     ######## specific functions #######
 
 
@@ -303,75 +304,78 @@ class BaseApiView(View):
 
             for (key, value) in item.items():
                 key = str(key)
+                set_value = True
 
-                try:
-                    model_field = model._meta.get_field(key)
+                if not key in self.read_only_fields:
+                    try:
+                        model_field = model._meta.get_field(key)
 
-                    if model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
-                        pass
-                    elif key == 'id':
-                        pass
-                    else:
-                        if type(model_field.rel) == models.ManyToOneRel:
-                            #input is a dictionary with an id and name in json
-                            if value is None or value == {} or value == []:
-                                value = None
-                            else:
-                                if type(value) == list:
-                                    value = value[0]
-                                value = model_field.rel.to.objects.get(pk=value['id'])
+                        if model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
+                            pass
+                        elif key == 'id':
+                            pass
+                        else:
+                            if type(model_field.rel) == models.ManyToOneRel:
+                                #input is a dictionary with an id and name in json
+                                if value is None or value == {} or value == []:
+                                    value = None
+                                    set_value = False
+                                else:
+                                    if type(value) == list:
+                                        value = value[0]
+                                    value = model_field.rel.to.objects.get(pk=value['id'])
 
-                        if type(model_field) == models.IntegerField and len(model_field._get_choices()) > 0:
-                            #input is a dictionary with an id and name in json
-                            if value is None or value == {} or value == []:
-                                value = None
-                            else:
-                                if type(value) == list:
-                                    value = value[0]
-                                value = value['id']
+                            elif type(model_field) == models.IntegerField and len(model_field._get_choices()) > 0:
+                                #input is a dictionary with an id and name in json
+                                if value is None or value == {} or value == [] or value == '':
+                                    value = None
+                                    set_value = False
+                                else:
+                                    if type(value) == list:
+                                        value = value[0]
+                                    value = value
 
-                        if isinstance(model_field, models.IntegerField):
-                            value = self._str2int_or_none(value)
-                        setattr(record, key, value)
+                            elif isinstance(model_field, models.IntegerField):
+                                value = self._str2int_or_none(value)
 
-                        if isinstance(model_field, models.FloatField):
-                            value = self._str2float_or_none(value)
-                        setattr(record, key, value)
+                            elif isinstance(model_field, models.FloatField):
+                                value = self._str2float_or_none(value)
 
-                        if isinstance(model_field, models.BooleanField):
-                            value = self._str2bool_or_none(value)
-                        setattr(record, key, value)
+                            elif isinstance(model_field, models.BooleanField):
+                                value = self._str2bool_or_none(value)
 
-                        if isinstance(model_field, models.GeometryField):
-                            if value is None or value == '':
-                                value = None
-                            else:
-                                reader = WKTReader()
-                                value = reader.read(value)
+                            elif isinstance(model_field, models.GeometryField):
+                                if value is None or value == '':
+                                    value = None
+                                else:
+                                    reader = WKTReader()
+                                    value = reader.read(value)
 
-                        setattr(record, key, value)
+                            if set_value:
+                                setattr(record, key, value)
 
-                except FieldDoesNotExist:
-                    logger.error("Field %s.%s not exists." % (
-                            model._meta.module_name, key))
-                    success = False
-                    Exception('field error')
+                    except FieldDoesNotExist:
+                        logger.error("Field %s.%s not exists." % (
+                                model._meta.module_name, key))
+                        success = False
+                        Exception('field error')
 
             record.save()
             for (key, value) in item.items():
                 key = str(key)
+                if not key in self.read_only_fields:
 
-                try:
-                    model_field = model._meta.get_field(key)
+                    try:
+                        model_field = model._meta.get_field(key)
 
-                    if model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
-                        self.update_many2many(record, model_field, value)
+                        if model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
+                            self.update_many2many(record, model_field, value)
 
-                except FieldDoesNotExist:
-                    logger.error("Field %s.%s not exists." % (
-                            model._meta.module_name, key))
-                    success = False
-                    Exception('field error')
+                    except FieldDoesNotExist:
+                        logger.error("Field %s.%s not exists." % (
+                                model._meta.module_name, key))
+                        success = False
+                        Exception('field error')
 
         return success, touched_objects
 
@@ -390,63 +394,76 @@ class BaseApiView(View):
 
         for item in data:
             record = model.objects.get(pk=item['id'])
-            lizard_history_summary = item.pop('edit_summary')
-            record.lizard_history_summary = lizard_history_summary
+            if 'edit_summary' in item:
+                lizard_history_summary = item.pop('edit_summary')
+                record.lizard_history_summary = lizard_history_summary
             touched_objects.append(record)
 
             for (key, value) in item.items():
                 key = str(key)
+                set_value = True
 
-                try:
-                    model_field = model._meta.get_field(key)
+                if not key in self.read_only_fields:
 
-                    if model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
-                        self.update_many2many(record, model_field, value)
-                    else:
-                        if type(model_field.rel) == models.ManyToOneRel:
-                            #input is a dictionary with an id and name in json
-                            if value is None or value == {} or value == []:
-                                value = None
-                            else:
-                                if type(value) == list:
-                                    value = value[0]
-                                value = model_field.rel.to.objects.get(pk=value['id'])
+                    try:
+                        one2many_rel = False
+                        try:
+                            model_field = model._meta.get_field(key)
+                            name = model_field.name
+                        except FieldDoesNotExist:
+                            if getattr(record, key):
+                                model_field = None
+                                one2many_rel = True
+                                name = key
 
-                        if type(model_field) == models.IntegerField and len(model_field._get_choices()) > 0:
-                            #input is a dictionary with an id and name in json
-                            if value is None or value == {} or value == []:
-                                value = None
-                            else:
-                                if type(value) == list:
-                                    value = value[0]
-                                value = value['id']
+                        if one2many_rel or model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
+                            self.update_many2many(record, model_field, name, value)
+                        else:
+                            if type(model_field.rel) == models.ManyToOneRel:
+                                #input is a dictionary with an id and name in json
+                                if value is None or value == {} or value == []:
+                                    value = None
+                                    set_value = False
+                                else:
+                                    if type(value) == list:
+                                        value = value[0]
+                                    value = model_field.rel.to.objects.get(pk=value['id'])
 
-                        if isinstance(model_field, models.IntegerField):
-                            value = self._str2int_or_none(value)
-                        setattr(record, key, value)
+                            if type(model_field) == models.IntegerField and len(model_field._get_choices()) > 0:
+                                #input is a dictionary with an id and name in json
+                                if value is None or value == {} or value == []:
+                                    value = None
+                                    set_value = False
+                                else:
+                                    if type(value) == list:
+                                        value = value[0]
+                                    value = value['id']
 
-                        if isinstance(model_field, models.FloatField):
-                            value = self._str2float_or_none(value)
-                        setattr(record, key, value)
+                            if isinstance(model_field, models.IntegerField):
+                                value = self._str2int_or_none(value)
 
-                        if isinstance(model_field, models.BooleanField):
-                            value = self._str2bool_or_none(value)
-                        setattr(record, key, value)
 
-                        if isinstance(model_field, models.GeometryField):
-                            if value is None or value == '':
-                                value = None
-                            else:
-                                reader = WKTReader()
-                                value = reader.read(value)
+                            if isinstance(model_field, models.FloatField):
+                                value = self._str2float_or_none(value)
 
-                        setattr(record, key, value)
+                            if isinstance(model_field, models.BooleanField):
+                                value = self._str2bool_or_none(value)
 
-                except FieldDoesNotExist:
-                    logger.error("Field %s.%s not exists." % (
-                            model._meta.module_name, key))
-                    success = False
-                    Exception('field error')
+                            if isinstance(model_field, models.GeometryField):
+                                if value is None or value == '':
+                                    value = None
+                                else:
+                                    reader = WKTReader()
+                                    value = reader.read(value)
+
+                            if set_value:
+                                setattr(record, key, value)
+
+                    except (FieldDoesNotExist, AttributeError):
+                        logger.error("Field %s.%s not exists." % (
+                                model._meta.module_name, key))
+                        success = False
+                        Exception('field error')
 
             record.save()
         return success, touched_objects
