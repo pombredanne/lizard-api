@@ -6,6 +6,7 @@ Changelog of lizard-api
 ----------------
 
 - Add the summary as attribute on record when updating objects.
+- Add read-only options to fields (fields are ignored during update and create)
 
 
 0.5 (2012-02-08)
