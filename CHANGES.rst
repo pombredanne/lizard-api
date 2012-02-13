@@ -5,7 +5,9 @@ Changelog of lizard-api
 0.7 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- In create_objects, BaseApiView:
+    - Fix for read_only_fields
+    - Put edit_summary on obj instance
 
 
 0.6 (2012-02-13)

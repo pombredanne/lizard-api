@@ -292,6 +292,10 @@ class BaseApiView(View):
             issues(todo):
             - everything in one database transaction
         """
+        # Read only fields *could* be defined on view inheriting
+        # from this class.
+        if not hasattr(self, 'read_only_fields'):
+            self.read_only_fields = []
 
         touched_objects = []
         model = self.model_class
@@ -300,6 +304,10 @@ class BaseApiView(View):
 
         for item in data:
             record = model()
+            if 'edit_summary' in item:
+                lizard_history_summary = item.pop('edit_summary')
+                record.lizard_history_summary = lizard_history_summary
+            import pdb; pdb.set_trace() 
             touched_objects.append(record)
 
             for (key, value) in item.items():
