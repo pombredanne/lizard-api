@@ -399,7 +399,6 @@ class BaseApiView(View):
 
         for item in data:
             record = model.objects.get(pk=item['id'])
-            import pdb; pdb.set_trace() 
             if 'edit_summary' in item:
                 lizard_history_summary = item.pop('edit_summary')
                 record.lizard_history_summary = lizard_history_summary
