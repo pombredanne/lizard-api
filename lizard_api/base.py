@@ -307,7 +307,6 @@ class BaseApiView(View):
             if 'edit_summary' in item:
                 lizard_history_summary = item.pop('edit_summary')
                 record.lizard_history_summary = lizard_history_summary
-            import pdb; pdb.set_trace() 
             touched_objects.append(record)
 
             for (key, value) in item.items():
