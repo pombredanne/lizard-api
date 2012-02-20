@@ -145,6 +145,7 @@ class BaseApiView(View):
         flat = self._str2bool_or_none(request.GET.get('flat', False))
         include_geom =  self._str2bool_or_none(request.GET.get('include_geom', True))
         show_deleted = self._str2bool_or_none(request.GET.get('show_deleted', False))
+        filter = request.GET.get('filter', None)
 
 
         size = self.size_dict[size.lower()]
@@ -193,9 +194,16 @@ class BaseApiView(View):
                     q[0] = q[0] + '__istartswith'
                     objs = objs.filter(**{q[0]:q[1]})
 
+            if filter:
+                print filter
+                filter = json.loads(filter)
+                for f in filter:
+                    if f['property'] in self.field_mapping:
+                        objs = objs.filter(**{self.field_mapping[f['property']]:f['value']})
+                    else:
+                        print 'field %s is not filterable'%f['property']
             if sort:
                 sort_params = self.transform_sort_params(sort)
-                print sort_params
                 objs = objs.order_by(*sort_params)
 
 
@@ -606,7 +614,11 @@ class BaseApiView(View):
     def _str2float_or_none(self, value):
         """
             returns integer of value, or when not a number returns 'None'
+            in case of an object, takes id as value for evaluation
         """
+        if type(value) == object and 'id' in value:
+            value = value['id']
+
         try:
             return float(value)
         except (TypeError, ValueError):
@@ -617,7 +629,11 @@ class BaseApiView(View):
     def _str2int_or_none(self, value):
         """
             returns integer of value, or when not a number returns 'None'
+            in case of an object, takes id as value for evaluation
         """
+        if type(value) == object and 'id' in value:
+            value = value['id']
+
         try:
             return int(value)
         except (TypeError, ValueError):
@@ -627,7 +643,13 @@ class BaseApiView(View):
     def _str2bool_or_none(self, value):
         """
             returns integer of value, or when not a number returns 'None'
+            in case of an object, takes id as value for evaluation
         """
+        print value
+        if type(value) == dict and 'id' in value:
+            print 'dict'
+            value = value['id']
+
         if type(value) == bool:
             return value
         elif type(value) in (str, unicode):
