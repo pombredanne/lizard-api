@@ -5,7 +5,9 @@ Changelog of lizard-api
 0.8 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- added filter option
+
+- string, bool or number field also dict allowed with value as id
 
 
 0.7 (2012-02-17)

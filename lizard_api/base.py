@@ -496,13 +496,13 @@ class BaseApiView(View):
         try:
             for record in data:
                 object_id = record['id']
-                object = model.objects.filter(
+                object = model.objects.get(
                     pk=object_id)
-                if not object.exists():
-                    continue
-                object = object[0]
-                setattr(object, self.valid_field, not self.valid_value)
-                object.save()
+                if self.valid_field:
+                    setattr(object, self.valid_field, not self.valid_value)
+                    object.save()
+                else:
+                    object.delete()
         except model.DoesNotExist:
                 success = False
         return success
