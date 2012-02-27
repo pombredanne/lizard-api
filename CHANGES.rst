@@ -2,7 +2,7 @@ Changelog of lizard-api
 ===================================================
 
 
-0.8 (unreleased)
+0.8 (2012-02-27)
 ----------------
 
 - added filter option
