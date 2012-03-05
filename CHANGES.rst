@@ -5,8 +5,7 @@ Changelog of lizard-api
 0.9 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- bug fix for many2many relations
 
 0.8 (2012-02-27)
 ----------------
