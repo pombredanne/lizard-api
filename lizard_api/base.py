@@ -52,6 +52,12 @@ class BaseApiView(View):
     read_only=None
     ######## specific functions #######
 
+    use_filtered_model=False
+
+    # example:
+    #def get_filtered_model(self, request):
+    #    self.model_class.filter(user=request.user)
+    #
 
     def get_object_for_api(self, measure, flat=True, size=COMPLETE, include_geom=False):
         pass
@@ -150,6 +156,7 @@ class BaseApiView(View):
 
         size = self.size_dict[size.lower()]
 
+
         model = self.model_class
 
         logger.debug("""input for api is:
@@ -176,11 +183,13 @@ class BaseApiView(View):
 
             output = []
 
-            objs = model.objects.all()
+            if self.use_filtered_model:
+                objs = self.get_filtered_model(request)
+            else:
+                objs = model.objects.all()
 
             if not show_deleted and self.valid_field:
                 objs = objs.filter(**{self.valid_field: self.valid_value})
-
 
             if query:
                 for q in query.split(','):
@@ -268,13 +277,13 @@ class BaseApiView(View):
 
         if action == 'delete':#OK
             success = self.delete_objects(
-                data)
+                data, request)
         elif action == 'create':#todo
             success, touched_objects = self.create_objects(
-                data)
+                data, request)
         elif action == 'update':
             success, touched_objects = self.update_objects(
-                data)
+                data, request)
         else:
             logger.error("Unkown post action '%s'." % action)
             success = False
@@ -293,7 +302,7 @@ class BaseApiView(View):
 
 
 
-    def create_objects(self, data):
+    def create_objects(self, data, request=None):
         """
             create records
 
@@ -395,7 +404,7 @@ class BaseApiView(View):
         return success, touched_objects
 
 
-    def update_objects(self, data):
+    def update_objects(self, data, request=None):
         """
             Update records
 
@@ -437,7 +446,7 @@ class BaseApiView(View):
                                 name = key
 
                         if one2many_rel or model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
-                            self.update_many2many(record, model_field, name, value)
+                            self.update_many2many(record, model_field, value)
                         else:
                             if type(model_field.rel) == models.ManyToOneRel:
                                 #input is a dictionary with an id and name in json
@@ -488,7 +497,7 @@ class BaseApiView(View):
             record.save()
         return success, touched_objects
 
-    def delete_objects(self, data):
+    def delete_objects(self, data, request=None):
         """Deactivate measure objects."""
         success = True
         model = self.model_class
