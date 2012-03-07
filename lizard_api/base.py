@@ -278,7 +278,7 @@ class BaseApiView(View):
         if action == 'delete':#OK
             success = self.delete_objects(
                 data, request)
-        elif action == 'create':#todo
+        elif action == 'create':
             success, touched_objects = self.create_objects(
                 data, request)
         elif action == 'update':
