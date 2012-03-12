@@ -5,7 +5,9 @@ Changelog of lizard-api
 0.10 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- bug fix for setting related relations to zero
+
+- added slug option for selecting item (beside id)
 
 
 0.9 (2012-03-05)

@@ -49,6 +49,9 @@ class BaseApiView(View):
 
     name_field='name'
 
+    #slug field support. use object_slug instead of object_id to query on slug
+    slug_field = None
+
     read_only=None
     ######## specific functions #######
 
@@ -147,6 +150,7 @@ class BaseApiView(View):
         """
 
         object_id = self._str2int_or_none(request.GET.get('object_id', None))
+        object_slug = request.GET.get('object_slug', None)
         size = request.GET.get('size', 'complete')
         flat = self._str2bool_or_none(request.GET.get('flat', False))
         include_geom =  self._str2bool_or_none(request.GET.get('include_geom', True))
@@ -166,9 +170,13 @@ class BaseApiView(View):
                 flat: %s
               """%(str(object_id), str(size), str(include_geom), str(flat)))
 
-        if object_id is not None:
+        if object_id is not None or object_slug is not None:
             #return single object
-            obj  = model.objects.get(id=object_id)
+            if object_id is not None:
+                obj = model.objects.get(id=object_id)
+            else:
+                obj = model.objects.get(slug=object_slug)
+
             output = self.get_object_for_api(obj, flat=flat, size=size, include_geom=include_geom)
             return {'success': True, 'data': output}
 
