@@ -452,7 +452,7 @@ class BaseApiView(View):
                                 #input is a dictionary with an id and name in json
                                 if value is None or value == {} or value == []:
                                     value = None
-                                    set_value = False
+                                    #set_value = False
                                 else:
                                     if type(value) == list:
                                         value = value[0]
