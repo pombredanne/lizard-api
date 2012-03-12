@@ -2,7 +2,7 @@ Changelog of lizard-api
 ===================================================
 
 
-0.10 (unreleased)
+0.10 (2012-03-12)
 -----------------
 
 - bug fix for setting related relations to zero
