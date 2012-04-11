@@ -349,7 +349,7 @@ class BaseApiView(View):
                         else:
                             if type(model_field.rel) == models.ManyToOneRel:
                                 #input is a dictionary with an id and name in json
-                                if value is None or value == {} or value == []:
+                                if value is None or value == {} or value == [] or value == '':
                                     value = None
                                     set_value = False
                                 else:

@@ -5,7 +5,7 @@ Changelog of lizard-api
 0.11 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Add extra exception for parsing post data.
 
 
 0.10 (2012-03-12)
