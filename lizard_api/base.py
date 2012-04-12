@@ -68,6 +68,9 @@ class BaseApiView(View):
     def update_many2many(self, record, model_field, linked_records):
         pass
 
+    def update_one2many(record, key, value):
+        pass
+
 #    def get_object_for_api(self, measure, flat=True, size=COMPLETE, include_geom=False):
 #        """
 #            create object of measure
@@ -453,7 +456,9 @@ class BaseApiView(View):
                                 one2many_rel = True
                                 name = key
 
-                        if one2many_rel or (model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel):
+                        if one2many_rel:
+                            self.update_one2many(record, key, value)
+                        elif  model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
                             self.update_many2many(record, model_field, value)
                         else:
                             if type(model_field.rel) == models.ManyToOneRel:
