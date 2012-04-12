@@ -453,7 +453,7 @@ class BaseApiView(View):
                                 one2many_rel = True
                                 name = key
 
-                        if one2many_rel or model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel:
+                        if one2many_rel or (model_field.rel is not None and type(model_field.rel) == models.ManyToManyRel):
                             self.update_many2many(record, model_field, value)
                         else:
                             if type(model_field.rel) == models.ManyToOneRel:
