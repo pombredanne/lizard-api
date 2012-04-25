@@ -212,7 +212,7 @@ class BaseApiView(View):
                     objs = objs.filter(**{q[0]:q[1]})
 
             if filter:
-                print filter
+                # print filter
                 filter = json.loads(filter)
                 for f in filter:
                     if f['property'] in self.field_mapping:
@@ -223,9 +223,10 @@ class BaseApiView(View):
                 sort_params = self.transform_sort_params(sort)
                 objs = objs.order_by(*sort_params)
 
-
             for obj in objs[start:(start+limit)]:
-                output.append(self.get_object_for_api(obj, flat=flat, size=size, include_geom=include_geom))
+                obj_instance = self.get_object_for_api(obj, flat=flat, size=size, include_geom=include_geom)
+                #if obj_instance is not None:
+                output.append(obj_instance)
 
             return {'success': True, 'data': output, 'count': objs.count(), 'total': objs.count()}
 
@@ -233,7 +234,7 @@ class BaseApiView(View):
         """
             transforms sort request of Ext.store to django input for sort_by
         """
-        print json.loads(sort_input)
+        # print json.loads(sort_input)
         output = []
         for inp in json.loads(sort_input):
             if self.field_mapping.has_key(inp['property']):
@@ -334,6 +335,7 @@ class BaseApiView(View):
                 record.lizard_history_summary = lizard_history_summary
             touched_objects.append(record)
 
+            # Loop all fields. Value of a field can also be a list.
             for (key, value) in item.items():
                 key = str(key)
                 set_value = True
@@ -662,9 +664,9 @@ class BaseApiView(View):
             returns integer of value, or when not a number returns 'None'
             in case of an object, takes id as value for evaluation
         """
-        print value
+        # print value
         if type(value) == dict and 'id' in value:
-            print 'dict'
+            # print 'dict'
             value = value['id']
 
         if type(value) == bool:
