@@ -2,10 +2,23 @@ Changelog of lizard-api
 ===================================================
 
 
-0.11 (unreleased)
+0.12 (unreleased)
 -----------------
 
 - Nothing changed yet.
+
+
+0.11.1 (2012-04-15)
+-------------------
+
+- bug fix for saving one2many fields. added function update_one2many for this kind of
+      relations (part of pp issue 187)
+
+
+0.11 (2012-04-11)
+-----------------
+
+- Add extra exception for parsing post data.
 
 
 0.10 (2012-03-12)
