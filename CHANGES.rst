@@ -5,7 +5,7 @@ Changelog of lizard-api
 0.12 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Remove duplicate definition, and some print statements.
 
 
 0.11.1 (2012-04-15)

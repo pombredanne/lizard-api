@@ -215,13 +215,12 @@ class BaseApiView(View):
                     objs = objs.filter(**{q[0]:q[1]})
 
             if filter:
-                # print filter
                 filter = json.loads(filter)
                 for f in filter:
                     if f['property'] in self.field_mapping:
                         objs = objs.filter(**{self.field_mapping[f['property']]:f['value']})
                     else:
-                        print 'field %s is not filterable'%f['property']
+                        logger.debug('field %s is not filterable',f['property'])
             if sort:
                 sort_params = self.transform_sort_params(sort)
                 objs = objs.order_by(*sort_params)
@@ -237,7 +236,6 @@ class BaseApiView(View):
         """
             transforms sort request of Ext.store to django input for sort_by
         """
-        # print json.loads(sort_input)
         output = []
         for inp in json.loads(sort_input):
             if self.field_mapping.has_key(inp['property']):
@@ -258,7 +256,6 @@ class BaseApiView(View):
             Update, create or delete records
 
         """
-
         #request params
         action = request.GET.get('action', None)
         size =  request.GET.get('size', 'complete')
@@ -311,7 +308,6 @@ class BaseApiView(View):
 
         return {'success': success,
                 'data': output}
-
 
 
     def create_objects(self, data, request=None):
@@ -570,38 +566,6 @@ class BaseApiView(View):
             else:
                 return {'id': value, 'name': str(choices[value])}
 
-
-    def save_single_many2many_relation(self, record, model_field, linked_records):
-        """
-            update specific part of manyToMany relations.
-            input:
-                - record: measure
-                - model_field. many2many field object
-                - linked_records. list with dictionaries with:
-                    id: id of related objects
-                    optional some relations in case the relation is through another object
-
-        """
-        model_link = getattr(record, model_field.name)
-        existing_links = dict([(obj.id, obj) for obj in model_link.all()])
-
-        for linked_record in linked_records:
-
-            if existing_links.has_key(linked_record['id']):
-                #update record
-                link = existing_links[linked_record['id']]
-                link.save()
-                del existing_links[linked_record['id']]
-            else:
-                #create new
-                model_link.add(
-                    model_field.rel.to.objects.get(pk=linked_record['id']))
-
-        #remove existing links, that are not anymore
-        for link in existing_links.itervalues():
-            model_link.remove(link)
-
-
     def save_single_many2many_relation(self, record, model_field, linked_records):
         """
             update specific part of manyToMany relations.
@@ -669,9 +633,7 @@ class BaseApiView(View):
             returns integer of value, or when not a number returns 'None'
             in case of an object, takes id as value for evaluation
         """
-        # print value
         if type(value) == dict and 'id' in value:
-            # print 'dict'
             value = value['id']
 
         if type(value) == bool:
