@@ -266,7 +266,7 @@ class BaseApiView(View):
 
         size = self.size_dict[size.lower()]
 
-
+        
         logger.debug("""input for api is:
                 action: %s
                 data: %s
@@ -427,7 +427,6 @@ class BaseApiView(View):
 
         touched_objects = []
         model = self.model_class
-
         success = True
 
         for item in data:
@@ -440,7 +439,6 @@ class BaseApiView(View):
             for (key, value) in item.items():
                 key = str(key)
                 set_value = True
-
                 if not key in self.read_only_fields:
 
                     try:
@@ -580,13 +578,10 @@ class BaseApiView(View):
 
         model_link = getattr(record, model_field.name)
         existing_links = dict([(obj.id, obj) for obj in model_link.all()])
-
         for linked_record in linked_records:
 
-            if existing_links.has_key(linked_record['id']):
-                #update record
-                link = existing_links[linked_record['id']]
-                link.save()
+            if linked_record['id'] in existing_links.keys():
+                #delete link from the list 'existing_links'
                 del existing_links[linked_record['id']]
             else:
                 #create new

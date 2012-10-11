@@ -7,6 +7,8 @@ Changelog of lizard-api
 
 - Remove duplicate definition, and some print statements.
 
+- Remove save() statement on update linked records.
+
 
 0.11.1 (2012-04-15)
 -------------------
