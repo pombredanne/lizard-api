@@ -2,7 +2,7 @@ Changelog of lizard-api
 ===================================================
 
 
-0.12 (unreleased)
+0.12 (2012-10-11)
 -----------------
 
 - Remove duplicate definition, and some print statements.
