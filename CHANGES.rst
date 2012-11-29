@@ -2,7 +2,7 @@ Changelog of lizard-api
 ===================================================
 
 
-0.13 (unreleased)
+0.13 (2012-11-29)
 -----------------
 
 - Split post function of BaseApiView class pp397.
