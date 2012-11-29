@@ -5,7 +5,9 @@ Changelog of lizard-api
 0.13 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Split post function of BaseApiView class pp397.
+
+- Fix pep8 errors.
 
 
 0.12 (2012-10-11)

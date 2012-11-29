@@ -14,18 +14,16 @@ logger = logging.getLogger(__name__)
 
 class BaseApiView(View):
     """
-        Base class for api's with possibilities for quering, pagination, get, create, update and delete and
-        base functions for working with related objects (one2many, many2many and many2many tables through another table
+        Base class for api's with possibilities for quering, pagination, get,
+        create, update and delete and base functions for working with related
+        objects (one2many, many2many and many2many tables through another table
 
-        integrates well with the Ext-js interfaces developed in the KRW-vss project.
+        integrates well with the Ext-js interfaces developed in the KRW-vss
+        project.
         <<todo: add documentations which classes>>
-
-
 
         related fields:
         always a representation with id and name
-
-
     """
 
     #predefined sizes of return (all fields or just a selection)
@@ -41,28 +39,27 @@ class BaseApiView(View):
         'complete': COMPLETE
     }
 
-    model_class=None
+    model_class = None
 
     #boolean field which marks if field is deleted
-    valid_field=None
-    valid_value=True
+    valid_field = None
+    valid_value = True
 
-    name_field='name'
+    name_field = 'name'
 
     #slug field support. use object_slug instead of object_id to query on slug
     slug_field = None
 
-    read_only=None
+    read_only = None
     ######## specific functions #######
 
-    use_filtered_model=False
+    use_filtered_model = False
 
-    # example:
-    #def get_filtered_model(self, request):
-    #    self.model_class.filter(user=request.user)
-    #
-
-    def get_object_for_api(self, measure, flat=True, size=COMPLETE, include_geom=False):
+    def get_object_for_api(self,
+                           measure,
+                           flat=True,
+                           size=COMPLETE,
+                           include_geom=False):
         pass
 
     def update_many2many(self, record, model_field, linked_records):
@@ -70,79 +67,6 @@ class BaseApiView(View):
 
     def update_one2many(record, key, value):
         pass
-
-#    def get_object_for_api(self, measure, flat=True, size=COMPLETE, include_geom=False):
-#        """
-#            create object of measure
-#        """
-#
-#        output = {
-#            'id':measure.id,
-#             'name': measure.title
-#            }
-#        if size >= self.SMALL:
-#            output.update({
-#                'id':measure.id,
-#                'ident': measure.ident,
-#                'title': measure.title,
-#                'is_KRW_measure': measure.is_KRW_measure,
-#                'is_indicator': measure.is_indicator,
-#                'description': measure.description,
-#                'total_costs': measure.total_costs,
-#                'investment_costs': measure.investment_costs,
-#                'exploitation_costs': measure.exploitation_costs,
-#                'responsible_department': measure.responsible_department,
-#                'value': measure.value,
-#                'measure_type': self._get_related_object(measure.measure_type, flat),
-#                'period': self._get_related_object(measure.period, flat),
-#                'unit': self._get_related_object(measure.unit, flat),
-#                'categories': self._get_related_objects(measure.categories, flat),
-#                'initiator': self._get_related_object(measure.initiator, flat),
-#                'executive': self._get_related_object(measure.executive, flat),
-#                'areas': self._get_related_objects(measure.areas, flat),
-#                'waterbodies': self._get_related_objects(measure.waterbodies, flat),
-#            })
-#
-#        if size >= self.MEDIUM:
-#            output.update({
-#                'aggregation_type':  self._get_choice(Measure._meta.get_field('aggregation_type'), measure.aggregation_type, flat),
-#                'funding_organizations': self.get_funding_organisations(measure),
-#                'status_moments': measure.get_statusmoments(auto_create_missing_states=True, only_valid=True),
-#            })
-#
-#        if size >= self.COMPLETE:
-#            output.update({
-#                'read_only': measure.read_only,
-#                'import_raw': measure.import_raw,
-#                'import_source': measure.import_source,
-#            })
-#
-#        if include_geom:
-#            output.update({
-#                'geom': measure.get_geometry_wkt_string(),
-#            })
-#
-#        return output
-#
-#    def update_many2many(self, record, model_field, linked_records):
-#        """
-#            update specific part of manyToMany relations.
-#            input:
-#                - record: measure
-#                - model_field. many2many field object
-#                - linked_records. list with dictionaries with:
-#                    id: id of related objects
-#                    optional some relations in case the relation is through another object
-#
-#        """
-#
-#        if model_field.name == 'funding_organizations':
-#            record.set_fundingorganizations(linked_records)
-#        if model_field.name == 'status_moments':
-#            record.set_statusmoments(linked_records)
-#        else:
-#            #areas, waterbodies, category
-#            self._save_single_many2many_relation(record, model_field, linked_records)
 
     ####### base get object #######
 
@@ -156,13 +80,13 @@ class BaseApiView(View):
         object_slug = request.GET.get('object_slug', None)
         size = request.GET.get('size', 'complete')
         flat = self._str2bool_or_none(request.GET.get('flat', False))
-        include_geom =  self._str2bool_or_none(request.GET.get('include_geom', True))
-        show_deleted = self._str2bool_or_none(request.GET.get('show_deleted', False))
+        include_geom = self._str2bool_or_none(
+            request.GET.get('include_geom', True))
+        show_deleted = self._str2bool_or_none(
+            request.GET.get('show_deleted', False))
         filter = request.GET.get('filter', None)
 
-
         size = self.size_dict[size.lower()]
-
 
         model = self.model_class
 
@@ -171,7 +95,7 @@ class BaseApiView(View):
                 size: %s
                 include_geom; %s
                 flat: %s
-              """%(str(object_id), str(size), str(include_geom), str(flat)))
+              """ % (str(object_id), str(size), str(include_geom), str(flat)))
 
         if object_id is not None or object_slug is not None:
             #return single object
@@ -180,7 +104,8 @@ class BaseApiView(View):
             else:
                 obj = model.objects.get(slug=object_slug)
 
-            output = self.get_object_for_api(obj, flat=flat, size=size, include_geom=include_geom)
+            output = self.get_object_for_api(
+                obj, flat=flat, size=size, include_geom=include_geom)
             return {'success': True, 'data': output}
 
         else:
@@ -189,8 +114,6 @@ class BaseApiView(View):
             limit = int(request.GET.get('limit', 25))
             query = request.GET.get('query', None)
             sort = request.GET.get('sort', None)
-
-
 
             output = []
 
@@ -208,29 +131,35 @@ class BaseApiView(View):
                     a = len(q)
                     if len(q) == 1:
                         #only filter and not field given, take name field
-                        q =  [self.name_field, q[0]]
+                        q = [self.name_field, q[0]]
                     if q[1] == 'None':
                         q[1] = None
                     q[0] = q[0] + '__istartswith'
-                    objs = objs.filter(**{q[0]:q[1]})
+                    objs = objs.filter(**{q[0]: q[1]})
 
             if filter:
                 filter = json.loads(filter)
                 for f in filter:
                     if f['property'] in self.field_mapping:
-                        objs = objs.filter(**{self.field_mapping[f['property']]:f['value']})
+                        objs = objs.filter(
+                            **{self.field_mapping[f['property']]: f['value']})
                     else:
-                        logger.debug('field %s is not filterable',f['property'])
+                        logger.debug(
+                            'field %s is not filterable', f['property'])
             if sort:
                 sort_params = self.transform_sort_params(sort)
                 objs = objs.order_by(*sort_params)
 
-            for obj in objs[start:(start+limit)]:
-                obj_instance = self.get_object_for_api(obj, flat=flat, size=size, include_geom=include_geom)
+            for obj in objs[start:(start + limit)]:
+                obj_instance = self.get_object_for_api(
+                    obj, flat=flat, size=size, include_geom=include_geom)
                 #if obj_instance is not None:
                 output.append(obj_instance)
 
-            return {'success': True, 'data': output, 'count': objs.count(), 'total': objs.count()}
+            return {'success': True,
+                    'data': output,
+                    'count': objs.count(),
+                    'total': objs.count()}
 
     def transform_sort_params(self, sort_input):
         """
@@ -238,79 +167,79 @@ class BaseApiView(View):
         """
         output = []
         for inp in json.loads(sort_input):
-            if self.field_mapping.has_key(inp['property']):
+            if inp['property'] in self.field_mapping:
                 model_param = self.field_mapping[inp['property']]
                 if inp['direction'] == 'ASC':
                     model_param = '-' + model_param
-
                 output.append(model_param)
         return output
 
     #########functions around a post (update, create, delete) ########
 
-
-
-
-    def post(self, request):
+    def proceed_action(self, action, data):
         """
             Update, create or delete records
 
         """
-        #request params
-        action = request.GET.get('action', None)
-        size =  request.GET.get('size', 'complete')
-        flat =  self._str2bool_or_none(request.GET.get('flat', False))
-        include_geom =  self._str2bool_or_none(request.GET.get('include_geom', True))
-        data = json.loads(self.CONTENT.get('data', []))
-        edit_message = self.CONTENT.get('edit_message', None)
-
-        size = self.size_dict[size.lower()]
-
-        
-        logger.debug("""input for api is:
-                action: %s
-                data: %s
-                edit_message: %s
-              """%(str(action), str(data), str(edit_message)))
-
-
-        output = None
         touched_objects = None
 
-        if type(data) == dict:
-            #get single object and return single object
-            return_dict = True
-            data = [data]
-        else:
-            return_dict = False
-
-        if action == 'delete':#OK
-            success = self.delete_objects(
-                data, request)
+        if action == 'delete':  # OK
+            success = self.delete_objects(data)
         elif action == 'create':
-            success, touched_objects = self.create_objects(
-                data, request)
+            success, touched_objects = self.create_objects(data)
         elif action == 'update':
-            success, touched_objects = self.update_objects(
-                data, request)
+            success, touched_objects = self.update_objects(data)
         else:
             logger.error("Unkown post action '%s'." % action)
             success = False
 
+        return success, touched_objects
+
+    def touched_object_to_dict(self, touched_objects, flat, size,
+                               include_geom, return_dict):
+        output = []
         if touched_objects:
-            output = []
             for obj in touched_objects:
-                output.append(self.get_object_for_api(obj, flat=flat, size=size, include_geom=include_geom))
+                touched_dict = self.get_object_for_api(
+                    obj, flat=flat, size=size, include_geom=include_geom)
+                output.append(touched_dict)
 
             if return_dict:
-                #just return single object
+                # just return single object
                 output = output[0]
+        return output
 
+    def post(self, request):
+        #request params
+        action = request.GET.get('action', None)
+        size = request.GET.get('size', 'complete')
+        flat = self._str2bool_or_none(request.GET.get('flat', False))
+        include_geom = self._str2bool_or_none(
+            request.GET.get('include_geom', True))
+        data = json.loads(self.CONTENT.get('data', []))
+        edit_message = self.CONTENT.get('edit_message', None)
+
+        size = self.size_dict[size.lower()]
+        return_dict = False
+
+        logger.debug("""input for api is:
+                action: %s
+                data: %s
+                edit_message: %s
+              """ % (str(action), str(data), str(edit_message)))
+
+        if type(data) == dict:
+            # get single object and return single object
+            return_dict = True
+            data = [data]
+
+        success, touched_objects = self.proceed_action(action, data)
+        output = self.touched_object_to_dict(
+            touched_objects, flat, size, include_geom, return_dict)
         return {'success': success,
                 'data': output}
 
-
-    def create_objects(self, data, request=None):
+    def create_objects(self, data):
         """
             create records
 
@@ -388,12 +317,13 @@ class BaseApiView(View):
                                 setattr(record, key, value)
 
                     except FieldDoesNotExist:
-                        logger.error("Field %s.%s not exists." % (
-                                model._meta.module_name, key))
+                        logger.error(
+                            "Field %s.%s not exists." % (model._meta.module_name, key))
                         success = False
                         Exception('field error')
 
             record.save()
+
             for (key, value) in item.items():
                 key = str(key)
                 if not key in self.read_only_fields:
@@ -405,15 +335,14 @@ class BaseApiView(View):
                             self.update_many2many(record, model_field, value)
 
                     except FieldDoesNotExist:
-                        logger.error("Field %s.%s not exists." % (
-                                model._meta.module_name, key))
+                        logger.error(
+                            "Field %s.%s not exists." % (model._meta.module_name, key))
                         success = False
                         Exception('field error')
 
         return success, touched_objects
 
-
-    def update_objects(self, data, request=None):
+    def update_objects(self, data):
         """
             Update records
 
@@ -440,7 +369,6 @@ class BaseApiView(View):
                 key = str(key)
                 set_value = True
                 if not key in self.read_only_fields:
-
                     try:
                         one2many_rel = False
                         try:
@@ -480,7 +408,6 @@ class BaseApiView(View):
                             if isinstance(model_field, models.IntegerField):
                                 value = self._str2int_or_none(value)
 
-
                             if isinstance(model_field, models.FloatField):
                                 value = self._str2float_or_none(value)
 
@@ -498,15 +425,14 @@ class BaseApiView(View):
                                 setattr(record, key, value)
 
                     except (FieldDoesNotExist, AttributeError):
-                        logger.error("Field %s.%s not exists." % (
-                                model._meta.module_name, key))
+                        logger.error(
+                            "Field %s.%s not exists." % (model._meta.module_name, key))
                         success = False
                         Exception('field error')
 
-            record.save()
         return success, touched_objects
 
-    def delete_objects(self, data, request=None):
+    def delete_objects(self, data):
         """Deactivate measure objects."""
         success = True
         model = self.model_class
@@ -524,7 +450,6 @@ class BaseApiView(View):
         except model.DoesNotExist:
                 success = False
         return success
-
 
     #########base functions for working with related objects########
 
@@ -572,8 +497,8 @@ class BaseApiView(View):
                 - model_field. many2many field object
                 - linked_records. list with dictionaries with:
                     id: id of related objects
-                    optional some relations in case the relation is through another object
-
+                    optional some relations in case the relation
+                    is through another object
         """
 
         model_link = getattr(record, model_field.name)
@@ -592,7 +517,6 @@ class BaseApiView(View):
         for link in existing_links.itervalues():
             model_link.remove(link)
 
-
     #########base functions for transforming input to correct value########
     def _str2float_or_none(self, value):
         """
@@ -605,9 +529,8 @@ class BaseApiView(View):
         try:
             return float(value)
         except (TypeError, ValueError):
-            logger.error('value %s is not a float'%str(value))
+            logger.error('value %s is not a float' % str(value))
             return None
-
 
     def _str2int_or_none(self, value):
         """
@@ -620,7 +543,7 @@ class BaseApiView(View):
         try:
             return int(value)
         except (TypeError, ValueError):
-            logger.error('value %s is not an integer'%str(value))
+            logger.error('value %s is not an integer' % str(value))
             return None
 
     def _str2bool_or_none(self, value):
