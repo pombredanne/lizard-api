@@ -2,7 +2,7 @@ Changelog of lizard-api
 ===================================================
 
 
-0.14 (unreleased)
+0.14 (2012-12-11)
 -----------------
 
 - Fix error on update measure.
