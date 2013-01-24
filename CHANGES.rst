@@ -5,7 +5,7 @@ Changelog of lizard-api
 0.15 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fix error on save a measure pp411.
 
 
 0.14 (2012-12-11)
