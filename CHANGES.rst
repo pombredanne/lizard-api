@@ -2,10 +2,22 @@ Changelog of lizard-api
 ===================================================
 
 
-0.14 (unreleased)
+0.16 (unreleased)
 -----------------
 
 - Nothing changed yet.
+
+
+0.15 (2013-01-24)
+-----------------
+
+- Fix error on save a measure pp411.
+
+
+0.14 (2012-12-11)
+-----------------
+
+- Fix error on update measure.
 
 
 0.13 (2012-11-29)

@@ -75,7 +75,6 @@ class BaseApiView(View):
             returns object or list of objects
 
         """
-
         object_id = self._str2int_or_none(request.GET.get('object_id', None))
         object_slug = request.GET.get('object_slug', None)
         size = request.GET.get('size', 'complete')
@@ -155,7 +154,6 @@ class BaseApiView(View):
                     obj, flat=flat, size=size, include_geom=include_geom)
                 #if obj_instance is not None:
                 output.append(obj_instance)
-
             return {'success': True,
                     'data': output,
                     'count': objs.count(),
@@ -387,7 +385,7 @@ class BaseApiView(View):
                         else:
                             if type(model_field.rel) == models.ManyToOneRel:
                                 #input is a dictionary with an id and name in json
-                                if value is None or value == {} or value == []:
+                                if value is None or value == {} or value == [] or value == ['']:
                                     value = None
                                     #set_value = False
                                 else:
@@ -429,7 +427,7 @@ class BaseApiView(View):
                             "Field %s.%s not exists." % (model._meta.module_name, key))
                         success = False
                         Exception('field error')
-
+            record.save()
         return success, touched_objects
 
     def delete_objects(self, data):
